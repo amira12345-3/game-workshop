@@ -1,0 +1,1008 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>🎮 Game Design Workshop</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --orange:#FF7A1A;--orange-light:#FFE7D4;
+  --purple:#8B5CF6;--purple-light:#ECE2FE;
+  --blue:#2D7FF9;--blue-light:#DAE9FF;
+  --green:#22C55E;--green-light:#D5F5E3;
+  --pink:#EC4899;--pink-light:#FDE4F2;
+  --slate-900:#0F172A;--slate-800:#1E293B;--slate-700:#334155;
+  --slate-600:#475569;--slate-500:#64748B;--slate-400:#94A3B8;
+  --slate-300:#CBD5E1;--slate-200:#E2E8F0;--slate-100:#F1F5F9;--slate-50:#F8FAFC;
+  --shadow-sm:0 1px 2px rgba(15,23,42,.06),0 1px 3px rgba(15,23,42,.08);
+  --shadow-md:0 4px 6px rgba(15,23,42,.05),0 10px 15px rgba(15,23,42,.08);
+  --shadow-lg:0 10px 25px rgba(15,23,42,.08),0 20px 40px rgba(15,23,42,.12);
+  --radius:14px;--radius-sm:10px;--radius-lg:20px;
+}
+html,body{height:100%}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;background:var(--slate-50);color:var(--slate-800);line-height:1.5;-webkit-font-smoothing:antialiased}
+button{font-family:inherit;cursor:pointer;border:none;background:none}
+input,textarea,select{font-family:inherit;font-size:15px}
+.page{display:none;min-height:100vh}
+.page.active{display:block;animation:fadeIn .3s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.container{max-width:1200px;margin:0 auto;padding:40px 24px}
+.hero{position:relative;padding:80px 24px 100px;text-align:center;color:white;overflow:hidden}
+.hero-bg{position:absolute;inset:0;z-index:0;background:linear-gradient(135deg,#FF7A1A 0%,#EC4899 35%,#8B5CF6 70%,#2D7FF9 100%)}
+.hero-bg::before{content:"";position:absolute;inset:0;background-image:radial-gradient(circle at 20% 30%,rgba(255,255,255,.15) 0,transparent 40%),radial-gradient(circle at 80% 70%,rgba(255,255,255,.12) 0,transparent 40%)}
+.hero-content{position:relative;z-index:1;max-width:900px;margin:0 auto}
+.logo-badge{width:90px;height:90px;border-radius:22px;background:rgba(255,255,255,.2);backdrop-filter:blur(12px);border:2px solid rgba(255,255,255,.4);display:inline-flex;align-items:center;justify-content:center;font-size:48px;margin-bottom:24px;box-shadow:0 12px 30px rgba(0,0,0,.2)}
+.hero h1{font-size:56px;font-weight:800;letter-spacing:-1px;margin-bottom:16px;text-shadow:0 2px 12px rgba(0,0,0,.15)}
+.subtitle{font-size:20px;opacity:.95;margin-bottom:40px}
+.hero-buttons{display:flex;gap:16px;justify-content:center;flex-wrap:wrap}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:12px 22px;border-radius:var(--radius-sm);font-weight:600;font-size:15px;transition:all .2s;border:2px solid transparent}
+.btn-xl{padding:16px 32px;font-size:17px;border-radius:var(--radius)}
+.btn-full{width:100%}
+.btn-primary{background:var(--slate-900);color:white}
+.btn-primary:hover{background:var(--slate-800);transform:translateY(-2px);box-shadow:var(--shadow-md)}
+.btn-primary:disabled{background:var(--slate-300);cursor:not-allowed;transform:none}
+.btn-secondary{background:white;color:var(--slate-900);border-color:var(--slate-200)}
+.btn-secondary:hover{background:var(--slate-50);border-color:var(--slate-300);transform:translateY(-2px);box-shadow:var(--shadow-md)}
+.btn-ghost{background:var(--slate-100);color:var(--slate-700)}
+.btn-ghost:hover{background:var(--slate-200)}
+.btn-ghost.small,.btn-danger.small{padding:8px 14px;font-size:13px}
+.btn-danger{background:#FEE2E2;color:#B91C1C}
+.btn-danger:hover{background:#FECACA}
+.section-title{font-size:32px;font-weight:800;text-align:center;margin:60px 0 32px;color:var(--slate-900)}
+.mission-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:18px}
+.mission-card{background:white;padding:28px;border-radius:var(--radius-lg);border:1px solid var(--slate-200);box-shadow:var(--shadow-sm);transition:transform .2s,box-shadow .2s}
+.mission-card:hover{transform:translateY(-4px);box-shadow:var(--shadow-md)}
+.mc-num{width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,var(--purple),var(--pink));color:white;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:18px;margin-bottom:14px}
+.mission-card h3{font-size:18px;margin-bottom:6px;color:var(--slate-900)}
+.mission-card p{color:var(--slate-600);font-size:14px}
+.stations-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:20px}
+.station-card{padding:32px 24px;border-radius:var(--radius-lg);text-align:center;color:white;position:relative;overflow:hidden;transition:transform .2s,box-shadow .2s}
+.station-card:hover{transform:translateY(-6px) scale(1.02);box-shadow:var(--shadow-lg)}
+.station-a{background:linear-gradient(135deg,#FF9A3C,#FF6A00)}
+.station-b{background:linear-gradient(135deg,#A78BFA,#7C3AED)}
+.station-c{background:linear-gradient(135deg,#5BA3FB,#1D6DEB)}
+.station-d{background:linear-gradient(135deg,#4ADE80,#16A34A)}
+.station-icon{font-size:48px;margin-bottom:12px}
+.station-card h3{font-size:14px;opacity:.85;letter-spacing:2px;text-transform:uppercase}
+.station-name{font-size:24px;font-weight:800;margin:8px 0}
+.station-desc{font-size:14px;opacity:.9}
+.info-banner{display:flex;align-items:center;gap:24px;background:linear-gradient(120deg,var(--purple-light),var(--blue-light));padding:28px;border-radius:var(--radius-lg);margin-top:48px;border:2px dashed var(--purple)}
+.ib-icon{font-size:56px}
+.info-banner h3{font-size:20px;margin-bottom:4px;color:var(--slate-900)}
+.info-banner p{color:var(--slate-700)}
+.rules-list{background:var(--slate-900);color:white;padding:32px;border-radius:var(--radius-lg);margin-top:32px}
+.rules-list h3{font-size:22px;margin-bottom:16px}
+.rules-list ul{list-style:none}
+.rules-list li{padding:8px 0;font-size:16px}
+.footer{text-align:center;padding:40px 24px;color:var(--slate-500);font-size:14px}
+.auth-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#FFE7D4 0%,#ECE2FE 50%,#DAE9FF 100%);padding:40px 20px;position:relative}
+.auth-card{background:white;padding:40px;border-radius:var(--radius-lg);box-shadow:var(--shadow-lg);width:100%;max-width:480px}
+.auth-icon{width:80px;height:80px;margin:0 auto 16px;border-radius:22px;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,var(--purple),var(--pink));font-size:40px}
+.teacher-card .auth-icon{background:linear-gradient(135deg,var(--blue),var(--purple))}
+.auth-card h2{text-align:center;font-size:28px;margin-bottom:4px}
+.auth-card .muted{text-align:center;margin-bottom:24px}
+.auth-card label{display:block;font-weight:600;font-size:13px;color:var(--slate-600);margin:14px 0 6px;text-transform:uppercase;letter-spacing:.5px}
+.auth-card input{width:100%;padding:12px 14px;border:2px solid var(--slate-200);border-radius:var(--radius-sm);background:var(--slate-50);transition:all .2s}
+.auth-card input:focus{outline:none;border-color:var(--purple);background:white}
+.hint{font-size:12px;color:var(--slate-500)}
+.hint.center{text-align:center;display:block;margin-top:12px}
+.hint code{background:var(--slate-100);padding:2px 8px;border-radius:4px;font-family:ui-monospace,Menlo,monospace}
+.muted{color:var(--slate-500);font-size:14px}
+.section-toggle,.category-grid{display:grid;gap:8px}
+.section-toggle{grid-template-columns:1fr 1fr}
+.category-grid{grid-template-columns:1fr 1fr}
+.toggle-btn,.cat-btn{padding:14px;border-radius:var(--radius-sm);border:2px solid var(--slate-200);background:white;font-weight:600;transition:all .2s}
+.toggle-btn:hover,.cat-btn:hover{border-color:var(--slate-300)}
+.toggle-btn.active.girls{background:var(--pink-light);border-color:var(--pink);color:var(--pink)}
+.toggle-btn.active.boys{background:var(--blue-light);border-color:var(--blue);color:var(--blue)}
+.cat-btn.active.cat-a{background:var(--orange-light);border-color:var(--orange);color:var(--orange)}
+.cat-btn.active.cat-b{background:var(--purple-light);border-color:var(--purple);color:var(--purple)}
+.cat-btn.active.cat-c{background:var(--blue-light);border-color:var(--blue);color:var(--blue)}
+.cat-btn.active.cat-d{background:var(--green-light);border-color:var(--green);color:var(--green)}
+.back-btn{position:absolute;top:24px;left:24px;padding:10px 16px;border-radius:var(--radius-sm);background:rgba(255,255,255,.85);backdrop-filter:blur(10px);font-weight:600;color:var(--slate-700)}
+.back-btn:hover{background:white}
+.back-btn.small{position:static;padding:8px 12px;font-size:13px;background:var(--slate-100)}
+.ws-topbar{position:sticky;top:0;z-index:50;display:flex;align-items:center;justify-content:space-between;padding:14px 24px;background:white;border-bottom:1px solid var(--slate-200);box-shadow:var(--shadow-sm)}
+.ws-left,.ws-right{display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.ws-brand{display:flex;align-items:center;gap:12px}
+.ws-cat-pill{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-weight:800;color:white;font-size:18px}
+.ws-cat-pill.cat-a{background:var(--orange)}
+.ws-cat-pill.cat-b{background:var(--purple)}
+.ws-cat-pill.cat-c{background:var(--blue)}
+.ws-cat-pill.cat-d{background:var(--green)}
+.ws-title{font-weight:800;font-size:17px}
+.ws-sub{font-size:12px;color:var(--slate-500)}
+.timer{font-weight:700;font-size:16px;background:var(--slate-100);padding:8px 14px;border-radius:10px;font-variant-numeric:tabular-nums}
+.timer.warning{background:#FEF3C7;color:#92400E}
+.timer.danger{background:#FEE2E2;color:#B91C1C;animation:pulse 1s infinite}
+@keyframes pulse{50%{opacity:.6}}
+.presence{display:flex}
+.presence-dot{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--purple),var(--pink));color:white;display:inline-flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;border:2px solid white;margin-left:-8px;box-shadow:var(--shadow-sm)}
+.presence-dot.me{background:linear-gradient(135deg,var(--blue),var(--green))}
+.save-status{font-size:13px;color:var(--green);font-weight:600}
+.save-status.saving{color:var(--orange)}
+.ws-tabs{display:flex;gap:4px;padding:0 24px;background:white;border-bottom:1px solid var(--slate-200);overflow-x:auto}
+.tab{padding:14px 20px;font-weight:600;color:var(--slate-500);border-bottom:3px solid transparent;white-space:nowrap;transition:color .15s,border-color .15s}
+.tab:hover{color:var(--slate-800)}
+.tab.active{color:var(--slate-900);border-color:var(--slate-900)}
+.tab-pane{display:none}
+.tab-pane.active{display:block;animation:fadeIn .25s ease}
+.ws-body{padding:32px 24px;max-width:1100px;margin:0 auto}
+.task-header{padding:24px;border-radius:var(--radius-lg);color:white;margin-bottom:24px}
+.task-header.cat-a{background:linear-gradient(135deg,#FF9A3C,#FF6A00)}
+.task-header.cat-b{background:linear-gradient(135deg,#A78BFA,#7C3AED)}
+.task-header.cat-c{background:linear-gradient(135deg,#5BA3FB,#1D6DEB)}
+.task-header.cat-d{background:linear-gradient(135deg,#4ADE80,#16A34A)}
+.task-header h2{font-size:28px;margin-bottom:6px}
+.task-header p{opacity:.92}
+.task-fields{display:grid;gap:16px}
+.field-card{background:white;padding:20px;border:1px solid var(--slate-200);border-radius:var(--radius);transition:border-color .15s,box-shadow .15s}
+.field-card:focus-within{border-color:var(--purple);box-shadow:0 0 0 3px var(--purple-light)}
+.field-card label{display:block;font-weight:700;margin-bottom:6px;color:var(--slate-900)}
+.field-hint{font-size:13px;color:var(--slate-500);margin-bottom:10px}
+.field-card textarea,.field-card input{width:100%;padding:10px 12px;border:1px solid var(--slate-200);border-radius:8px;background:var(--slate-50);resize:vertical}
+.field-card textarea:focus,.field-card input:focus{outline:none;border-color:var(--purple);background:white}
+.pill{font-size:12px;font-weight:700;padding:4px 10px;border-radius:20px;display:inline-block;margin-bottom:6px}
+.pill.good{background:var(--green-light);color:#15803D}
+.pill.bad{background:#FEE2E2;color:#B91C1C}
+.typing-badge{font-size:11px;color:var(--purple);font-weight:600;display:inline-flex;align-items:center;gap:4px;margin-left:8px}
+.typing-badge::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--purple);animation:pulse 1s infinite}
+.ai-helper{margin-top:24px}
+.ai-output{margin-top:12px;padding:16px;border-radius:12px;background:linear-gradient(120deg,var(--purple-light),var(--pink-light));border:1px solid var(--purple);display:none}
+.ai-output.show{display:block}
+.upload-wrap h2{font-size:26px;margin-bottom:8px}
+.upload-prompt{border:3px dashed var(--slate-300);border-radius:var(--radius-lg);padding:50px 20px;text-align:center;cursor:pointer;transition:border-color .2s,background .2s;background:var(--slate-50);margin-top:20px}
+.upload-prompt:hover{border-color:var(--purple);background:var(--purple-light)}
+.upload-icon{font-size:56px;margin-bottom:8px}
+.image-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:16px;margin-top:20px}
+.image-card{background:white;border:1px solid var(--slate-200);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow-sm)}
+.image-card img{width:100%;height:140px;object-fit:cover;display:block}
+.image-card .caption{padding:12px}
+.image-card textarea{width:100%;border:1px solid var(--slate-200);border-radius:8px;padding:8px;resize:vertical;min-height:60px;background:var(--slate-50)}
+.image-card .img-actions{padding:0 12px 12px;display:flex;justify-content:flex-end}
+.btn-remove{background:#FEE2E2;color:#B91C1C;padding:4px 10px;border-radius:8px;font-size:12px;font-weight:600}
+.present-wrap h2{font-size:26px;margin-bottom:16px}
+.present-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px}
+.present-form label{display:block;font-weight:700;margin:14px 0 6px}
+.present-form input,.present-form textarea{width:100%;padding:10px 12px;border:1px solid var(--slate-200);border-radius:8px;background:var(--slate-50);resize:vertical}
+.present-form input:focus,.present-form textarea:focus{outline:none;border-color:var(--purple);background:white}
+.present-preview .muted{margin-bottom:8px}
+.slide{background:white;border-radius:var(--radius-lg);padding:24px;border:2px solid var(--slate-900);box-shadow:var(--shadow-md);min-height:380px}
+.slide-header{display:flex;justify-content:space-between;margin-bottom:12px;align-items:center}
+.slide-cat{width:32px;height:32px;border-radius:8px;color:white;display:inline-flex;align-items:center;justify-content:center;font-weight:800}
+.slide-cat.cat-a{background:var(--orange)}
+.slide-cat.cat-b{background:var(--purple)}
+.slide-cat.cat-c{background:var(--blue)}
+.slide-cat.cat-d{background:var(--green)}
+.slide-group{font-size:13px;color:var(--slate-500)}
+.slide h3{font-size:22px;margin-bottom:12px}
+.slide-image{width:100%;height:140px;border-radius:10px;background:var(--slate-100);display:flex;align-items:center;justify-content:center;color:var(--slate-400);margin-bottom:12px;background-size:cover;background-position:center}
+.slide-image.has-image{color:transparent}
+.slide ul{padding-left:20px;margin-bottom:12px}
+.slide ul li{padding:4px 0;font-size:14px}
+.slide-explain{font-size:14px;color:var(--slate-700);border-left:3px solid var(--slate-900);padding-left:12px}
+.submit-wrap h2{font-size:26px;margin-bottom:8px}
+.checklist{background:white;border:1px solid var(--slate-200);border-radius:var(--radius);padding:20px;margin-top:20px}
+.check-item{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px dashed var(--slate-200)}
+.check-item:last-child{border-bottom:none}
+.check-item.done .check-text{color:var(--green);font-weight:600}
+.check-item.todo .check-text{color:var(--slate-500)}
+.submit-actions{margin-top:20px;text-align:center}
+.submitted-banner{background:var(--green-light);border:2px solid var(--green);color:#166534;padding:24px;border-radius:var(--radius);text-align:center;font-weight:700;font-size:18px;margin-top:20px}
+.td-topbar{position:sticky;top:0;z-index:50;display:flex;align-items:center;justify-content:space-between;padding:14px 24px;background:white;border-bottom:1px solid var(--slate-200);box-shadow:var(--shadow-sm)}
+.td-left,.td-right{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.td-brand{display:flex;align-items:center;gap:12px}
+.td-icon{font-size:28px}
+.td-title{font-weight:800;font-size:17px}
+.td-sub{font-size:12px;color:var(--slate-500)}
+.td-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;padding:24px;max-width:1400px;margin:0 auto}
+.stat-card{background:white;padding:22px;border-radius:var(--radius);border:1px solid var(--slate-200);box-shadow:var(--shadow-sm)}
+.stat-num{font-size:32px;font-weight:800;color:var(--slate-900)}
+.stat-label{font-size:13px;color:var(--slate-500);text-transform:uppercase;letter-spacing:.5px;margin-top:4px}
+.td-filters{display:flex;flex-wrap:wrap;gap:20px;padding:0 24px 16px;max-width:1400px;margin:0 auto}
+.filter-group{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.filter-group span{font-size:13px;font-weight:700;color:var(--slate-600)}
+.chip{padding:6px 14px;border-radius:20px;font-weight:600;font-size:13px;background:white;border:1px solid var(--slate-200);color:var(--slate-700);transition:all .15s}
+.chip:hover{border-color:var(--slate-300)}
+.chip.active{background:var(--slate-900);color:white;border-color:var(--slate-900)}
+.chip.cat-a.active{background:var(--orange);border-color:var(--orange)}
+.chip.cat-b.active{background:var(--purple);border-color:var(--purple)}
+.chip.cat-c.active{background:var(--blue);border-color:var(--blue)}
+.chip.cat-d.active{background:var(--green);border-color:var(--green)}
+.td-groups{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:16px;padding:0 24px 60px;max-width:1400px;margin:0 auto}
+.empty-state{grid-column:1/-1;text-align:center;padding:60px 20px;background:white;border:2px dashed var(--slate-300);border-radius:var(--radius-lg);color:var(--slate-500)}
+.empty-state h3{color:var(--slate-700);font-size:20px;margin-bottom:6px}
+.group-card{background:white;padding:18px;border-radius:var(--radius);border:1px solid var(--slate-200);box-shadow:var(--shadow-sm);transition:transform .2s,box-shadow .2s;cursor:pointer;position:relative}
+.group-card:hover{transform:translateY(-3px);box-shadow:var(--shadow-md)}
+.group-card.cat-a{border-top:4px solid var(--orange)}
+.group-card.cat-b{border-top:4px solid var(--purple)}
+.group-card.cat-c{border-top:4px solid var(--blue)}
+.group-card.cat-d{border-top:4px solid var(--green)}
+.gc-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.gc-name{font-weight:800;font-size:16px}
+.gc-section{font-size:11px;padding:3px 8px;border-radius:12px;background:var(--slate-100);color:var(--slate-600);font-weight:600}
+.gc-section.Girls{background:var(--pink-light);color:#BE185D}
+.gc-section.Boys{background:var(--blue-light);color:#1D4ED8}
+.gc-meta{font-size:13px;color:var(--slate-600);margin-bottom:12px}
+.gc-students{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:12px}
+.student-chip{font-size:11px;background:var(--slate-100);padding:3px 8px;border-radius:10px;color:var(--slate-700);font-weight:500}
+.student-chip.typing{background:var(--purple-light);color:var(--purple)}
+.gc-progress{height:6px;background:var(--slate-100);border-radius:4px;overflow:hidden;margin-bottom:6px}
+.gc-progress-bar{height:100%;background:linear-gradient(90deg,var(--purple),var(--blue));transition:width .4s}
+.gc-status{display:flex;justify-content:space-between;font-size:12px;color:var(--slate-500)}
+.gc-status .submitted{color:var(--green);font-weight:700}
+.modal{position:fixed;inset:0;z-index:200;display:flex;align-items:center;justify-content:center}
+.modal.hidden{display:none}
+.modal-backdrop{position:absolute;inset:0;background:rgba(15,23,42,.6);backdrop-filter:blur(4px)}
+.modal-card{position:relative;background:white;max-width:800px;width:calc(100% - 32px);max-height:86vh;overflow-y:auto;border-radius:var(--radius-lg);box-shadow:var(--shadow-lg);padding:28px}
+.modal-close{position:absolute;top:12px;right:12px;width:36px;height:36px;border-radius:50%;font-size:22px;background:var(--slate-100);color:var(--slate-700)}
+.modal-close:hover{background:var(--slate-200)}
+.modal-card h2{margin-bottom:6px}
+.modal-card h3{margin-top:18px;margin-bottom:8px;color:var(--slate-700);font-size:15px;text-transform:uppercase;letter-spacing:.5px}
+.answer-block{background:var(--slate-50);padding:12px 14px;border-radius:10px;margin-bottom:8px}
+.answer-block strong{display:block;font-size:13px;color:var(--slate-600);margin-bottom:4px}
+.image-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px}
+.image-grid figure{background:var(--slate-50);border-radius:10px;padding:6px}
+.image-grid img{width:100%;height:120px;object-fit:cover;border-radius:8px}
+.image-grid figcaption{font-size:12px;color:var(--slate-600);margin-top:4px;padding:4px}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(100px);background:var(--slate-900);color:white;padding:12px 22px;border-radius:30px;font-weight:600;font-size:14px;z-index:300;box-shadow:var(--shadow-lg);transition:all .3s ease;opacity:0;pointer-events:none}
+.toast.show{transform:translateX(-50%) translateY(0);opacity:1}
+.toast.success{background:var(--green)}
+.toast.error{background:#DC2626}
+@media(max-width:768px){
+  .hero{padding:60px 20px 80px}.hero h1{font-size:38px}.subtitle{font-size:16px}
+  .section-title{font-size:24px;margin:40px 0 20px}
+  .ws-topbar{flex-wrap:wrap;gap:8px}
+  .present-grid{grid-template-columns:1fr}
+  .auth-card{padding:28px 22px}
+  .container{padding:24px 18px}
+  .info-banner{flex-direction:column;text-align:center}
+}
+</style>
+</head>
+<body>
+<div id="app">
+
+<!-- LANDING -->
+<section id="page-landing" class="page active">
+  <header class="hero">
+    <div class="hero-bg"></div>
+    <div class="hero-content">
+      <div class="logo-badge">🎮</div>
+      <h1>Game Design Workshop</h1>
+      <p class="subtitle">Become an EXPERT in ONE game design element and teach your class!</p>
+      <div class="hero-buttons">
+        <button class="btn btn-primary btn-xl" onclick="goTo('page-login')">👨‍🎓 Enter as Student</button>
+        <button class="btn btn-secondary btn-xl" onclick="goTo('page-teacher-login')">👩‍🏫 Teacher Dashboard</button>
+      </div>
+    </div>
+  </header>
+  <div class="container">
+    <h2 class="section-title">🎯 Your Mission</h2>
+    <div class="mission-grid">
+      <div class="mission-card"><div class="mc-num">1</div><h3>Join Your Group</h3><p>Sign in with your name, section, and group code.</p></div>
+      <div class="mission-card"><div class="mc-num">2</div><h3>Work Together</h3><p>Collaborate live on your assigned game design section.</p></div>
+      <div class="mission-card"><div class="mc-num">3</div><h3>Find Real Examples</h3><p>Show working AND failing examples from real games.</p></div>
+      <div class="mission-card"><div class="mc-num">4</div><h3>Upload Evidence</h3><p>Add a screenshot or image with your caption.</p></div>
+      <div class="mission-card"><div class="mc-num">5</div><h3>Build Presentation</h3><p>Create a 1-minute slide for your class.</p></div>
+      <div class="mission-card"><div class="mc-num">6</div><h3>Submit & Present</h3><p>Lock your work and share with the class!</p></div>
+    </div>
+    <h2 class="section-title">🏛️ The 4 Workshop Stations</h2>
+    <div class="stations-grid">
+      <div class="station-card station-a"><div class="station-icon">⚙️</div><h3>Station A</h3><p class="station-name">Game Mechanics</p><p class="station-desc">How the game works — rules, actions, systems.</p></div>
+      <div class="station-card station-b"><div class="station-icon">📖</div><h3>Station B</h3><p class="station-name">Game Story</p><p class="station-desc">Narrative, characters, world, and emotion.</p></div>
+      <div class="station-card station-c"><div class="station-icon">🎮</div><h3>Station C</h3><p class="station-name">Game Controls</p><p class="station-desc">How players interact — input, feedback, feel.</p></div>
+      <div class="station-card station-d"><div class="station-icon">🎯</div><h3>Station D</h3><p class="station-name">Game Objectives</p><p class="station-desc">Goals, challenges, and what makes players win.</p></div>
+    </div>
+    <div class="info-banner">
+      <div class="ib-icon">⏱️</div>
+      <div><h3>Time Limit</h3><p><strong>10 minutes</strong> preparation + <strong>1-minute</strong> presentation. Auto-save keeps your work safe!</p></div>
+    </div>
+    <div class="rules-list">
+      <h3>⚡ Important Rules</h3>
+      <ul>
+        <li>✅ You can see what your teammates write <strong>LIVE</strong></li>
+        <li>🤝 Work together — don't overwrite each other</li>
+        <li>✨ Be clear, simple, and creative</li>
+        <li>📷 Always upload at least one supporting image</li>
+      </ul>
+    </div>
+  </div>
+  <footer class="footer">Game Design Workshop Platform · Built for Grades 8–12</footer>
+</section>
+
+<!-- STUDENT LOGIN -->
+<section id="page-login" class="page">
+  <div class="auth-wrap">
+    <button class="back-btn" onclick="goTo('page-landing')">← Back</button>
+    <div class="auth-card">
+      <div class="auth-icon">👨‍🎓</div>
+      <h2>Student Login</h2>
+      <p class="muted">Join your group and start the workshop</p>
+      <label>Your Name</label>
+      <input type="text" id="login-name" placeholder="e.g. Sara Ahmed" />
+      <label>Section</label>
+      <div class="section-toggle">
+        <button class="toggle-btn girls" data-section="Girls" onclick="selectSection(this,'Girls')">👧 Girls Section</button>
+        <button class="toggle-btn boys" data-section="Boys" onclick="selectSection(this,'Boys')">👦 Boys Section</button>
+      </div>
+      <label>Group Code <span class="hint">(get this from your teacher)</span></label>
+      <input type="text" id="login-group" placeholder="e.g. GROUP-A1" oninput="this.value=this.value.toUpperCase()" />
+      <label>Group Category</label>
+      <div class="category-grid">
+        <button class="cat-btn cat-a" data-cat="A" onclick="selectCategory(this,'A')">🟠 A · Mechanics</button>
+        <button class="cat-btn cat-b" data-cat="B" onclick="selectCategory(this,'B')">🟣 B · Story</button>
+        <button class="cat-btn cat-c" data-cat="C" onclick="selectCategory(this,'C')">🔵 C · Controls</button>
+        <button class="cat-btn cat-d" data-cat="D" onclick="selectCategory(this,'D')">🟢 D · Objectives</button>
+      </div>
+      <button class="btn btn-primary btn-xl btn-full" style="margin-top:20px" onclick="studentLogin()">🚀 Enter Workshop</button>
+    </div>
+  </div>
+</section>
+
+<!-- TEACHER LOGIN -->
+<section id="page-teacher-login" class="page">
+  <div class="auth-wrap">
+    <button class="back-btn" onclick="goTo('page-landing')">← Back</button>
+    <div class="auth-card teacher-card">
+      <div class="auth-icon">👩‍🏫</div>
+      <h2>Teacher Access</h2>
+      <p class="muted">Enter your access code to monitor groups</p>
+      <label>Teacher Name</label>
+      <input type="text" id="teacher-name" placeholder="e.g. Ms. Johnson" />
+      <label>Access Code</label>
+      <input type="password" id="teacher-code" placeholder="Default: teacher123" />
+      <button class="btn btn-secondary btn-xl btn-full" style="margin-top:20px" onclick="teacherLogin()">🎓 Open Dashboard</button>
+      <p class="hint center">Demo code: <code>teacher123</code></p>
+    </div>
+  </div>
+</section>
+
+<!-- STUDENT WORKSPACE -->
+<section id="page-workspace" class="page">
+  <div class="ws-topbar">
+    <div class="ws-left">
+      <button class="back-btn small" onclick="exitWorkspace()">← Exit</button>
+      <div class="ws-brand">
+        <span class="ws-cat-pill" id="ws-cat-pill">A</span>
+        <div>
+          <div class="ws-title" id="ws-title">Game Mechanics</div>
+          <div class="ws-sub" id="ws-sub">Group · Section</div>
+        </div>
+      </div>
+    </div>
+    <div class="ws-right">
+      <div class="timer" id="timer">⏱️ 10:00</div>
+      <div class="presence" id="presence"></div>
+      <div class="save-status" id="save-status">✓ Saved</div>
+    </div>
+  </div>
+  <div class="ws-tabs">
+    <button class="tab active" data-tab="answers" onclick="switchTab('answers')">📝 Answers</button>
+    <button class="tab" data-tab="upload" onclick="switchTab('upload')">📸 Upload</button>
+    <button class="tab" data-tab="present" onclick="switchTab('present')">🎤 Presentation</button>
+    <button class="tab" data-tab="submit" onclick="switchTab('submit')">✅ Submit</button>
+  </div>
+  <div class="ws-body">
+    <div class="tab-pane active" id="tab-answers">
+      <div class="task-header" id="task-header"></div>
+      <div id="task-fields" class="task-fields"></div>
+      <div class="ai-helper">
+        <button class="btn btn-ghost" onclick="aiSuggest()">✨ AI Suggestion (helps improve your answer)</button>
+        <div id="ai-output" class="ai-output"></div>
+      </div>
+    </div>
+    <div class="tab-pane" id="tab-upload">
+      <div class="upload-wrap">
+        <h2>📸 Upload Evidence</h2>
+        <p class="muted">Upload at least 1 image — a game screenshot or example. Add a caption explaining why it works (or fails).</p>
+        <input type="file" id="file-input" accept="image/*" hidden onchange="handleUpload(event)" />
+        <div class="upload-prompt" onclick="document.getElementById('file-input').click()">
+          <div class="upload-icon">⬆️</div>
+          <p><strong>Click to upload</strong> an image</p>
+          <span class="hint">PNG, JPG · max 2MB</span>
+        </div>
+        <div id="image-list" class="image-list"></div>
+      </div>
+    </div>
+    <div class="tab-pane" id="tab-present">
+      <div class="present-wrap">
+        <h2>🎤 1-Minute Presentation Builder</h2>
+        <div class="present-grid">
+          <div class="present-form">
+            <label>Slide Title</label>
+            <input type="text" id="pres-title" placeholder="e.g. The Magic of Mario's Mechanics" oninput="syncField('pres_title',this.value)"/>
+            <label>Key Points (one per line)</label>
+            <textarea id="pres-points" rows="5" placeholder="• Jump mechanic feels responsive&#10;• Enemies teach players gradually&#10;• Power-ups reward exploration" oninput="syncField('pres_points',this.value)"></textarea>
+            <label>Bullet Explanation</label>
+            <textarea id="pres-explain" rows="4" placeholder="Explain in 2-3 sentences what makes your example great or what fails..." oninput="syncField('pres_explain',this.value)"></textarea>
+            <button class="btn btn-ghost" style="margin-top:14px" onclick="autoGeneratePoints()">⚡ Auto-generate from Answers</button>
+          </div>
+          <div class="present-preview">
+            <p class="muted">Live Preview</p>
+            <div class="slide" id="slide-preview">
+              <div class="slide-header">
+                <span class="slide-cat" id="slide-cat">A</span>
+                <span class="slide-group" id="slide-group">Group</span>
+              </div>
+              <h3 id="slide-title">Your Title Appears Here</h3>
+              <div class="slide-image" id="slide-image"><span>No image yet</span></div>
+              <ul id="slide-points"></ul>
+              <p class="slide-explain" id="slide-explain"></p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="tab-pane" id="tab-submit">
+      <div class="submit-wrap">
+        <h2>✅ Submit Your Group's Work</h2>
+        <p class="muted">Make sure everyone has contributed before submitting. <strong>Submission locks editing.</strong></p>
+        <div class="checklist" id="submit-checklist"></div>
+        <div class="submit-actions">
+          <button class="btn btn-primary btn-xl" id="btn-submit" onclick="submitWork()">🚀 Submit Group Work</button>
+          <p class="hint" id="submit-status"></p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TEACHER DASHBOARD -->
+<section id="page-teacher" class="page">
+  <div class="td-topbar">
+    <div class="td-left">
+      <button class="back-btn small" onclick="exitTeacher()">← Exit</button>
+      <div class="td-brand"><span class="td-icon">👩‍🏫</span><div><div class="td-title">Teacher Dashboard</div><div class="td-sub" id="td-teacher-name">—</div></div></div>
+    </div>
+    <div class="td-right">
+      <button class="btn btn-ghost small" id="btn-activity" onclick="toggleActivity()">▶ Start Activity</button>
+      <button class="btn btn-ghost small" onclick="exportCSV()">⬇ CSV</button>
+      <button class="btn btn-ghost small" onclick="exportJSON()">⬇ JSON</button>
+      <button class="btn btn-ghost small" onclick="seedDemo()">🎲 Seed Demo Data</button>
+      <button class="btn btn-danger small" onclick="resetAll()">🗑 Reset</button>
+    </div>
+  </div>
+  <div class="td-stats">
+    <div class="stat-card"><div class="stat-num" id="stat-groups">0</div><div class="stat-label">Active Groups</div></div>
+    <div class="stat-card"><div class="stat-num" id="stat-students">0</div><div class="stat-label">Students Online</div></div>
+    <div class="stat-card"><div class="stat-num" id="stat-submitted">0</div><div class="stat-label">Submitted</div></div>
+    <div class="stat-card"><div class="stat-num" id="stat-progress">0%</div><div class="stat-label">Avg Progress</div></div>
+  </div>
+  <div class="td-filters">
+    <div class="filter-group">
+      <span>Section:</span>
+      <button class="chip active" data-fsection="all" onclick="setFilter('section','all',this)">All</button>
+      <button class="chip" data-fsection="Girls" onclick="setFilter('section','Girls',this)">👧 Girls</button>
+      <button class="chip" data-fsection="Boys" onclick="setFilter('section','Boys',this)">👦 Boys</button>
+    </div>
+    <div class="filter-group">
+      <span>Category:</span>
+      <button class="chip active" data-fcat="all" onclick="setFilter('cat','all',this)">All</button>
+      <button class="chip cat-a" data-fcat="A" onclick="setFilter('cat','A',this)">🟠 A</button>
+      <button class="chip cat-b" data-fcat="B" onclick="setFilter('cat','B',this)">🟣 B</button>
+      <button class="chip cat-c" data-fcat="C" onclick="setFilter('cat','C',this)">🔵 C</button>
+      <button class="chip cat-d" data-fcat="D" onclick="setFilter('cat','D',this)">🟢 D</button>
+    </div>
+  </div>
+  <div class="td-groups" id="td-groups"></div>
+</section>
+
+<div id="modal" class="modal hidden">
+  <div class="modal-backdrop" onclick="closeModal()"></div>
+  <div class="modal-card">
+    <button class="modal-close" onclick="closeModal()">×</button>
+    <div id="modal-body"></div>
+  </div>
+</div>
+
+<div id="toast" class="toast"></div>
+</div>
+
+<script>
+const STORAGE_KEY='gdw_state_v1';
+const CATEGORIES={
+  A:{name:'Game Mechanics',icon:'⚙️',color:'orange',
+    desc:'Define how the game works — rules, actions, and systems players interact with.',
+    fields:[
+      {id:'what',label:'What is it?',hint:'Explain Game Mechanics in your own words.'},
+      {id:'categories',label:'Categories',hint:'List different types of mechanics (movement, combat, puzzles…).'},
+      {id:'ex_good',label:'Working Example',pill:'good',hint:'A real game where the mechanic feels great. Why?'},
+      {id:'ex_bad',label:'Failing Example',pill:'bad',hint:'A real game where the mechanic feels broken. Why?'},
+      {id:'your_game',label:'Your Game: What mechanic is needed?',hint:'What core mechanic would your game use?'}
+    ]},
+  B:{name:'Game Story',icon:'📖',color:'purple',
+    desc:'Define your narrative — characters, world, and emotion that pull players in.',
+    fields:[
+      {id:'what',label:'What is it?',hint:'What does "story" mean in a game?'},
+      {id:'elements',label:'Key Elements',hint:'Hero? Conflict? Setting? Plot twist?'},
+      {id:'ex_good',label:'Working Example',pill:'good',hint:'A game with a powerful story.'},
+      {id:'ex_bad',label:'Broken Example',pill:'bad',hint:'A game with a confusing or weak story.'},
+      {id:'your_game',label:'Your Game (1 sentence story)',hint:'Pitch your game story in ONE sentence.'}
+    ]},
+  C:{name:'Game Controls',icon:'🎮',color:'blue',
+    desc:'Design how players interact — input, feedback, and overall feel.',
+    fields:[
+      {id:'what',label:'What is it?',hint:'What are game controls?'},
+      {id:'rules',label:'3 Rules of Good Controls',hint:'List 3 rules that make controls feel great.'},
+      {id:'ex_good',label:'Good Example',pill:'good',hint:'A game with satisfying controls.'},
+      {id:'ex_bad',label:'Frustrating Example',pill:'bad',hint:'A game with controls that feel bad.'},
+      {id:'your_game',label:'Your Game Platform Choice',hint:'Mobile? PC? Console? Why?'}
+    ]},
+  D:{name:'Game Objectives',icon:'🎯',color:'green',
+    desc:'Define goals, challenges, and what makes players want to win.',
+    fields:[
+      {id:'what',label:'What is it?',hint:'What is a game objective?'},
+      {id:'rule',label:'Design Rule',hint:'A rule of thumb for great objectives.'},
+      {id:'ex_good',label:'Clear Example',pill:'good',hint:'A game with an obvious objective.'},
+      {id:'ex_bad',label:'Unclear Example',pill:'bad',hint:"A game where you don't know what to do."},
+      {id:'your_game',label:'Your Game Objective',hint:"What is your game's main objective?"}
+    ]}
+};
+
+function loadState(){try{const r=localStorage.getItem(STORAGE_KEY);if(r)return JSON.parse(r);}catch(e){}return{groups:{},activity:{running:false,startedAt:null,durationSec:600}};}
+function saveState(s){localStorage.setItem(STORAGE_KEY,JSON.stringify(s));}
+let state=loadState();
+let me=null;
+let currentTab='answers';
+let typingTimeout=null,saveTimeout=null,timerInterval=null,heartbeatInterval=null;
+let filters={section:'all',cat:'all'};
+
+const channel=('BroadcastChannel'in window)?new BroadcastChannel('gdw_sync'):null;
+function broadcast(type,payload){if(channel)channel.postMessage({type,payload,ts:Date.now()});}
+if(channel)channel.onmessage=e=>onSyncMessage(e.data);
+window.addEventListener('storage',e=>{if(e.key===STORAGE_KEY){state=loadState();refreshUI();}});
+function onSyncMessage(msg){
+  state=loadState();
+  if(msg.type==='group_update'&&me&&me.role==='student'&&msg.payload.groupKey===groupKey())refreshWorkspaceFromState();
+  if(msg.type==='presence')refreshPresence();
+  if(msg.type==='activity')refreshTimerDisplay();
+  if(currentPage()==='page-teacher')renderTeacher();
+}
+
+function goTo(id){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.getElementById(id).classList.add('active');window.scrollTo(0,0);}
+function currentPage(){const p=document.querySelector('.page.active');return p?p.id:null;}
+
+function selectSection(btn,val){document.querySelectorAll('.toggle-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');btn.dataset.selected=val;}
+function selectCategory(btn,val){document.querySelectorAll('.cat-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');}
+
+function studentLogin(){
+  const name=document.getElementById('login-name').value.trim();
+  const sectionBtn=document.querySelector('.toggle-btn.active');
+  const catBtn=document.querySelector('.cat-btn.active');
+  const group=document.getElementById('login-group').value.trim().toUpperCase();
+  if(!name)return toast('Please enter your name','error');
+  if(!sectionBtn)return toast('Pick a section','error');
+  if(!group)return toast('Enter a group code','error');
+  if(!catBtn)return toast('Pick a category','error');
+  me={id:'u_'+Math.random().toString(36).slice(2,9),name,section:sectionBtn.dataset.section,group,cat:catBtn.dataset.cat,role:'student'};
+  ensureGroup();joinGroupAsMember();enterWorkspace();
+}
+function teacherLogin(){
+  const name=document.getElementById('teacher-name').value.trim()||'Teacher';
+  const code=document.getElementById('teacher-code').value;
+  if(code!=='teacher123')return toast('Wrong access code','error');
+  me={id:'teacher_'+Math.random().toString(36).slice(2,7),name,role:'teacher'};
+  document.getElementById('td-teacher-name').textContent=name;
+  goTo('page-teacher');renderTeacher();
+}
+
+function groupKey(g){g=g||me;return g.section+'__'+g.cat+'__'+g.group;}
+function ensureGroup(){
+  const k=groupKey();
+  if(!state.groups[k]){
+    state.groups[k]={key:k,name:me.group,section:me.section,cat:me.cat,members:{},answers:{},images:[],presentation:{pres_title:'',pres_points:'',pres_explain:''},submitted:false,submittedAt:null,createdAt:Date.now()};
+  }
+  saveState(state);
+}
+function joinGroupAsMember(){
+  const k=groupKey();
+  state.groups[k].members[me.id]={name:me.name,lastSeen:Date.now(),typing:null};
+  saveState(state);broadcast('presence',{groupKey:k,userId:me.id});
+}
+
+function enterWorkspace(){
+  goTo('page-workspace');
+  const cat=me.cat,meta=CATEGORIES[cat];
+  const pill=document.getElementById('ws-cat-pill');
+  pill.textContent=cat;pill.className='ws-cat-pill cat-'+cat.toLowerCase();
+  document.getElementById('ws-title').textContent=meta.name;
+  document.getElementById('ws-sub').textContent=me.group+' · '+me.section+' · '+me.name;
+  renderTask();renderImages();renderPresentationFromState();refreshChecklist();refreshPresence();
+  startHeartbeat();startTimerDisplay();switchTab('answers');
+}
+
+function exitWorkspace(){
+  if(me){const k=groupKey();if(state.groups[k]&&state.groups[k].members[me.id]){delete state.groups[k].members[me.id];saveState(state);broadcast('presence',{groupKey:k,userId:me.id});}}
+  me=null;if(timerInterval)clearInterval(timerInterval);if(heartbeatInterval)clearInterval(heartbeatInterval);goTo('page-landing');
+}
+function exitTeacher(){me=null;goTo('page-landing');}
+
+function switchTab(t){
+  currentTab=t;
+  document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('active',b.dataset.tab===t));
+  document.querySelectorAll('.tab-pane').forEach(p=>p.classList.toggle('active',p.id==='tab-'+t));
+  if(t==='submit')refreshChecklist();
+  if(t==='present')renderPresentationFromState();
+}
+
+function renderTask(){
+  const cat=me.cat,meta=CATEGORIES[cat];
+  const header=document.getElementById('task-header');
+  header.className='task-header cat-'+cat.toLowerCase();
+  header.innerHTML='<h2>'+meta.icon+' '+meta.name+' · Station '+cat+'</h2><p>'+meta.desc+'</p>';
+  const wrap=document.getElementById('task-fields');
+  wrap.innerHTML='';
+  const groupData=state.groups[groupKey()];
+  meta.fields.forEach(f=>{
+    const v=groupData.answers[f.id]||'';
+    const pillHtml=f.pill?'<span class="pill '+f.pill+'">'+(f.pill==='good'?'✅ Working':'❌ Failing')+'</span>':'';
+    const card=document.createElement('div');
+    card.className='field-card';card.dataset.field=f.id;
+    card.innerHTML=pillHtml+'<label>'+f.label+' <span class="typing-badge" data-typing="'+f.id+'" style="display:none">someone typing</span></label><p class="field-hint">'+(f.hint||'')+'</p><textarea rows="3" data-field="'+f.id+'">'+escapeHTML(v)+'</textarea>';
+    wrap.appendChild(card);
+  });
+  wrap.querySelectorAll('textarea').forEach(t=>{
+    t.addEventListener('input',e=>onFieldInput(e.target));
+    if(state.groups[groupKey()].submitted)t.disabled=true;
+  });
+}
+
+function onFieldInput(el){
+  const fid=el.dataset.field;
+  syncField(fid,el.value);
+  const k=groupKey();
+  state.groups[k].members[me.id].typing=fid;
+  state.groups[k].members[me.id].lastSeen=Date.now();
+  saveState(state);broadcast('group_update',{groupKey:k,userId:me.id,field:fid});
+  clearTimeout(typingTimeout);
+  typingTimeout=setTimeout(()=>{
+    state=loadState();
+    if(state.groups[k]&&state.groups[k].members[me.id]){
+      state.groups[k].members[me.id].typing=null;saveState(state);
+      broadcast('group_update',{groupKey:k,userId:me.id,field:null});
+    }
+  },1500);
+  showSavingStatus();
+}
+
+function syncField(fid,val){
+  const k=groupKey();state=loadState();if(!state.groups[k])ensureGroup();
+  if(['pres_title','pres_points','pres_explain'].includes(fid))state.groups[k].presentation[fid]=val;
+  else state.groups[k].answers[fid]=val;
+  saveState(state);broadcast('group_update',{groupKey:k,userId:me.id,field:fid});
+  scheduleSaved();
+  if(fid.startsWith('pres_'))renderPresentationPreview();
+}
+
+function showSavingStatus(){const el=document.getElementById('save-status');el.textContent='… Saving';el.classList.add('saving');}
+function scheduleSaved(){clearTimeout(saveTimeout);saveTimeout=setTimeout(()=>{const el=document.getElementById('save-status');el.textContent='✓ Saved';el.classList.remove('saving');},600);}
+
+function refreshWorkspaceFromState(){
+  if(!me||me.role!=='student')return;
+  const groupData=state.groups[groupKey()];if(!groupData)return;
+  const focused=document.activeElement;
+  document.querySelectorAll('#task-fields textarea').forEach(t=>{
+    if(t===focused)return;
+    const fid=t.dataset.field;const v=groupData.answers[fid]||'';
+    if(t.value!==v)t.value=v;t.disabled=!!groupData.submitted;
+  });
+  const typingByField={};
+  Object.entries(groupData.members).forEach(([uid,m])=>{if(m.typing&&uid!==me.id)typingByField[m.typing]=m.name;});
+  document.querySelectorAll('[data-typing]').forEach(b=>{
+    const fid=b.dataset.typing;
+    if(typingByField[fid]){b.style.display='inline-flex';b.textContent=typingByField[fid]+' typing…';}
+    else b.style.display='none';
+  });
+  ['pres_title','pres_points','pres_explain'].forEach(f=>{
+    const inputId=f.replace('_','-');const el=document.getElementById(inputId);
+    if(el&&el!==focused){const v=groupData.presentation[f]||'';if(el.value!==v)el.value=v;el.disabled=!!groupData.submitted;}
+  });
+  renderPresentationPreview();renderImages();refreshChecklist();refreshPresence();
+  if(groupData.submitted)showSubmitted();
+}
+function refreshUI(){if(currentPage()==='page-workspace')refreshWorkspaceFromState();if(currentPage()==='page-teacher')renderTeacher();}
+
+function startHeartbeat(){
+  if(heartbeatInterval)clearInterval(heartbeatInterval);
+  heartbeatInterval=setInterval(()=>{
+    state=loadState();const k=groupKey();if(!state.groups[k])return;
+    if(!state.groups[k].members[me.id])state.groups[k].members[me.id]={name:me.name};
+    state.groups[k].members[me.id].lastSeen=Date.now();
+    Object.keys(state.groups[k].members).forEach(uid=>{
+      if(Date.now()-state.groups[k].members[uid].lastSeen>30000)delete state.groups[k].members[uid];
+    });
+    saveState(state);broadcast('presence',{groupKey:k,userId:me.id});refreshPresence();
+  },4000);
+}
+function refreshPresence(){
+  if(!me||me.role!=='student')return;
+  state=loadState();const groupData=state.groups[groupKey()];if(!groupData)return;
+  const wrap=document.getElementById('presence');wrap.innerHTML='';
+  Object.entries(groupData.members).forEach(([uid,m])=>{
+    const dot=document.createElement('div');
+    dot.className='presence-dot'+(uid===me.id?' me':'');
+    dot.title=m.name+(uid===me.id?' (You)':'');
+    dot.textContent=(m.name||'?').charAt(0).toUpperCase();
+    wrap.appendChild(dot);
+  });
+}
+
+function handleUpload(e){
+  const file=e.target.files[0];if(!file)return;
+  if(file.size>2*1024*1024)return toast('Image must be < 2MB','error');
+  const reader=new FileReader();
+  reader.onload=ev=>{
+    const k=groupKey();state=loadState();
+    state.groups[k].images.push({id:'img_'+Math.random().toString(36).slice(2,8),data:ev.target.result,caption:'',uploadedBy:me.name,uploadedAt:Date.now()});
+    saveState(state);broadcast('group_update',{groupKey:k,userId:me.id});
+    renderImages();refreshChecklist();renderPresentationPreview();
+    toast('Image uploaded ✓','success');
+  };
+  reader.readAsDataURL(file);e.target.value='';
+}
+function renderImages(){
+  const list=document.getElementById('image-list');if(!list)return;
+  state=loadState();const g=state.groups[groupKey()];if(!g)return;
+  list.innerHTML='';
+  g.images.forEach(img=>{
+    const card=document.createElement('div');card.className='image-card';
+    card.innerHTML='<img src="'+img.data+'" alt="upload" /><div class="caption"><textarea placeholder="Why does this work / fail?" data-img="'+img.id+'" '+(g.submitted?'disabled':'')+'>'+escapeHTML(img.caption||'')+'</textarea><div class="hint" style="margin-top:4px">by '+escapeHTML(img.uploadedBy||'')+'</div></div><div class="img-actions">'+(g.submitted?'':'<button class="btn-remove" onclick="removeImage(\''+img.id+'\')">Remove</button>')+'</div>';
+    list.appendChild(card);
+  });
+  list.querySelectorAll('textarea').forEach(t=>t.addEventListener('input',e=>updateCaption(e.target.dataset.img,e.target.value)));
+}
+function updateCaption(id,val){
+  const k=groupKey();state=loadState();
+  const img=state.groups[k].images.find(i=>i.id===id);
+  if(img){img.caption=val;saveState(state);broadcast('group_update',{groupKey:k,userId:me.id});showSavingStatus();scheduleSaved();}
+}
+function removeImage(id){
+  const k=groupKey();state=loadState();
+  state.groups[k].images=state.groups[k].images.filter(i=>i.id!==id);
+  saveState(state);broadcast('group_update',{groupKey:k,userId:me.id});
+  renderImages();refreshChecklist();renderPresentationPreview();
+}
+
+function renderPresentationFromState(){
+  state=loadState();const g=state.groups[groupKey()];if(!g)return;
+  const titleEl=document.getElementById('pres-title'),ptEl=document.getElementById('pres-points'),exEl=document.getElementById('pres-explain');
+  if(titleEl&&titleEl!==document.activeElement)titleEl.value=g.presentation.pres_title||'';
+  if(ptEl&&ptEl!==document.activeElement)ptEl.value=g.presentation.pres_points||'';
+  if(exEl&&exEl!==document.activeElement)exEl.value=g.presentation.pres_explain||'';
+  if(g.submitted)[titleEl,ptEl,exEl].forEach(e=>{if(e)e.disabled=true;});
+  renderPresentationPreview();
+}
+function renderPresentationPreview(){
+  const g=state.groups[groupKey()];if(!g)return;
+  document.getElementById('slide-cat').textContent=me.cat;
+  document.getElementById('slide-cat').className='slide-cat cat-'+me.cat.toLowerCase();
+  document.getElementById('slide-group').textContent=me.group+' · '+me.section;
+  document.getElementById('slide-title').textContent=g.presentation.pres_title||'Your Title Appears Here';
+  const ul=document.getElementById('slide-points');ul.innerHTML='';
+  (g.presentation.pres_points||'').split('\n').filter(l=>l.trim()).forEach(line=>{
+    const li=document.createElement('li');li.textContent=line.replace(/^[•\-\*\s]+/,'');ul.appendChild(li);
+  });
+  document.getElementById('slide-explain').textContent=g.presentation.pres_explain||'';
+  const slideImg=document.getElementById('slide-image');
+  if(g.images.length){slideImg.style.backgroundImage='url('+g.images[0].data+')';slideImg.classList.add('has-image');slideImg.innerHTML='';}
+  else{slideImg.style.backgroundImage='';slideImg.classList.remove('has-image');slideImg.innerHTML='<span>No image yet</span>';}
+}
+function autoGeneratePoints(){
+  const g=state.groups[groupKey()];const meta=CATEGORIES[me.cat];const a=g.answers;
+  const lines=[];
+  if(a.what)lines.push('What it is: '+truncate(a.what,90));
+  if(a.ex_good)lines.push('✅ Works: '+truncate(a.ex_good,90));
+  if(a.ex_bad)lines.push('❌ Fails: '+truncate(a.ex_bad,90));
+  if(a.your_game)lines.push('Our game: '+truncate(a.your_game,90));
+  const points=lines.join('\n');
+  document.getElementById('pres-points').value=points;syncField('pres_points',points);
+  if(!g.presentation.pres_title){
+    const title=meta.icon+' '+meta.name+' — by '+me.group;
+    document.getElementById('pres-title').value=title;syncField('pres_title',title);
+  }
+  toast('Auto-generated key points ✓','success');
+}
+function truncate(s,n){return s.length>n?s.slice(0,n-1)+'…':s;}
+
+function refreshChecklist(){
+  const wrap=document.getElementById('submit-checklist');if(!wrap)return;
+  state=loadState();const g=state.groups[groupKey()];if(!g)return;
+  const fields=CATEGORIES[me.cat].fields;
+  const filled=fields.filter(f=>(g.answers[f.id]||'').trim().length>8).length;
+  const items=[
+    {ok:filled===fields.length,text:'All '+fields.length+' answers filled ('+filled+'/'+fields.length+')'},
+    {ok:g.images.length>=1,text:'At least 1 image uploaded ('+g.images.length+')'},
+    {ok:g.images.length>=1&&g.images.every(i=>(i.caption||'').trim().length>3),text:'Each image has a caption'},
+    {ok:(g.presentation.pres_title||'').trim().length>2,text:'Presentation title set'},
+    {ok:(g.presentation.pres_points||'').split('\n').filter(l=>l.trim()).length>=2,text:'At least 2 key points'},
+    {ok:Object.keys(g.members).length>=1,text:Object.keys(g.members).length+' member(s) active'}
+  ];
+  wrap.innerHTML=items.map(i=>'<div class="check-item '+(i.ok?'done':'todo')+'"><span class="check-icon">'+(i.ok?'✅':'⬜')+'</span><span class="check-text">'+i.text+'</span></div>').join('');
+  const allOk=items.every(i=>i.ok);
+  const btn=document.getElementById('btn-submit');
+  if(g.submitted){btn.textContent='✓ Already Submitted';btn.disabled=true;document.getElementById('submit-status').textContent='Submitted on '+new Date(g.submittedAt).toLocaleString();}
+  else{btn.disabled=!allOk;btn.textContent=allOk?'🚀 Submit Group Work':'⚠ Complete checklist to submit';document.getElementById('submit-status').textContent=allOk?'Ready to submit!':'Fill all checklist items above.';}
+}
+function showSubmitted(){
+  const wrap=document.querySelector('.submit-wrap');
+  if(!wrap||wrap.querySelector('.submitted-banner'))return;
+  const banner=document.createElement('div');banner.className='submitted-banner';
+  banner.textContent='🎉 Your group has submitted! Editing is locked.';wrap.appendChild(banner);
+}
+function submitWork(){
+  const k=groupKey();state=loadState();
+  state.groups[k].submitted=true;state.groups[k].submittedAt=Date.now();
+  saveState(state);broadcast('group_update',{groupKey:k,userId:me.id});
+  toast('🎉 Group submitted!','success');
+  refreshWorkspaceFromState();switchTab('submit');
+}
+
+function aiSuggest(){
+  const meta=CATEGORIES[me.cat];const out=document.getElementById('ai-output');out.classList.add('show');
+  const tips=[
+    '💡 Try linking your "Working Example" directly to a single design principle (e.g. "fast feedback").',
+    '💡 Make your "Failing Example" specific — name a real game and one moment that frustrated you.',
+    '💡 Your one-sentence pitch should answer: WHO is the player + WHAT they do + WHY it matters.',
+    '💡 In '+meta.name+', great answers always include a real player emotion (curious, satisfied, frustrated).',
+    '💡 Pair every claim with evidence — your screenshot in the Upload tab is the proof.'
+  ];
+  out.innerHTML='<strong>AI Coach:</strong> '+tips[Math.floor(Math.random()*tips.length)];
+}
+
+function startTimerDisplay(){if(timerInterval)clearInterval(timerInterval);timerInterval=setInterval(refreshTimerDisplay,1000);refreshTimerDisplay();}
+function refreshTimerDisplay(){
+  state=loadState();const t=document.getElementById('timer');if(!t)return;
+  const a=state.activity;
+  if(!a.running||!a.startedAt){t.className='timer';t.textContent='⏱️ Waiting for teacher…';return;}
+  const elapsed=Math.floor((Date.now()-a.startedAt)/1000);
+  const remain=Math.max(0,a.durationSec-elapsed);
+  const mm=String(Math.floor(remain/60)).padStart(2,'0');
+  const ss=String(remain%60).padStart(2,'0');
+  t.textContent='⏱️ '+mm+':'+ss;t.className='timer';
+  if(remain<=60)t.classList.add('danger');
+  else if(remain<=180)t.classList.add('warning');
+}
+
+function setFilter(kind,val,btn){
+  filters[kind]=val;
+  const attr=kind==='section'?'data-fsection':'data-fcat';
+  document.querySelectorAll('['+attr+']').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');renderTeacher();
+}
+function renderTeacher(){
+  state=loadState();
+  const groups=Object.values(state.groups).filter(g=>{
+    if(filters.section!=='all'&&g.section!==filters.section)return false;
+    if(filters.cat!=='all'&&g.cat!==filters.cat)return false;
+    return true;
+  });
+  const all=Object.values(state.groups);
+  const onlineStudents=all.reduce((sum,g)=>sum+Object.values(g.members).filter(m=>Date.now()-m.lastSeen<30000).length,0);
+  const submitted=all.filter(g=>g.submitted).length;
+  const totalProgress=all.length?Math.round(all.reduce((s,g)=>s+groupProgress(g),0)/all.length):0;
+  document.getElementById('stat-groups').textContent=all.length;
+  document.getElementById('stat-students').textContent=onlineStudents;
+  document.getElementById('stat-submitted').textContent=submitted;
+  document.getElementById('stat-progress').textContent=totalProgress+'%';
+  document.getElementById('btn-activity').textContent=state.activity.running?'⏸ Stop Activity':'▶ Start Activity';
+  const grid=document.getElementById('td-groups');
+  if(!groups.length){grid.innerHTML='<div class="empty-state"><h3>No groups yet</h3><p>Students will appear here once they join. Try "Seed Demo Data" to preview.</p></div>';return;}
+  grid.innerHTML=groups.map(g=>{
+    const progress=groupProgress(g);
+    const typingNames=Object.values(g.members).filter(m=>m.typing).map(m=>m.name);
+    const studentChips=Object.values(g.members).map(m=>{
+      const isTyping=!!m.typing;
+      return '<span class="student-chip '+(isTyping?'typing':'')+'">'+escapeHTML(m.name)+(isTyping?' ✏️':'')+'</span>';
+    }).join('')||'<span class="hint">No active members</span>';
+    return '<div class="group-card cat-'+g.cat.toLowerCase()+'" onclick="openGroupDetail(\''+g.key+'\')"><div class="gc-head"><div class="gc-name">'+escapeHTML(g.name)+' · '+CATEGORIES[g.cat].name+'</div><div class="gc-section '+g.section+'">'+(g.section==='Girls'?'👧':'👦')+' '+g.section+'</div></div><div class="gc-meta">'+CATEGORIES[g.cat].icon+' Station '+g.cat+' · '+Object.keys(g.members).length+' member(s)'+(typingNames.length?' · ✏️ '+escapeHTML(typingNames.join(', ')):'')+'</div><div class="gc-students">'+studentChips+'</div><div class="gc-progress"><div class="gc-progress-bar" style="width:'+progress+'%"></div></div><div class="gc-status"><span>'+progress+'% complete</span><span class="'+(g.submitted?'submitted':'')+'">'+(g.submitted?'✓ Submitted':'In progress')+'</span></div></div>';
+  }).join('');
+}
+function groupProgress(g){
+  const fields=CATEGORIES[g.cat].fields;
+  const filled=fields.filter(f=>(g.answers[f.id]||'').trim().length>8).length;
+  const fieldScore=filled/fields.length*60;
+  const imgScore=Math.min(g.images.length,1)*15;
+  const presScore=((g.presentation.pres_title?8:0)+((g.presentation.pres_points||'').split('\n').filter(l=>l.trim()).length>=2?10:0)+(g.presentation.pres_explain?7:0));
+  return Math.min(100,Math.round(fieldScore+imgScore+presScore));
+}
+
+function openGroupDetail(key){
+  state=loadState();const g=state.groups[key];if(!g)return;
+  const meta=CATEGORIES[g.cat];const fields=meta.fields;
+  let html='<h2>'+meta.icon+' '+escapeHTML(g.name)+' <span style="font-size:14px;color:#64748B">· '+meta.name+'</span></h2>';
+  html+='<p class="muted">'+g.section+' Section · '+Object.keys(g.members).length+' members · '+(g.submitted?'<strong style="color:#22C55E">Submitted ✓</strong>':'In progress')+'</p>';
+  html+='<h3>Members</h3><div class="gc-students">'+(Object.values(g.members).map(m=>'<span class="student-chip">'+escapeHTML(m.name)+'</span>').join('')||'<span class="hint">No members</span>')+'</div>';
+  html+='<h3>Answers</h3>'+fields.map(f=>'<div class="answer-block"><strong>'+f.label+'</strong>'+(escapeHTML(g.answers[f.id]||'').replace(/\n/g,'<br>')||'<em style="color:#94A3B8">— empty —</em>')+'</div>').join('');
+  html+='<h3>Uploaded Images ('+g.images.length+')</h3><div class="image-grid">'+(g.images.map(i=>'<figure><img src="'+i.data+'"/><figcaption>'+escapeHTML(i.caption||'(no caption)')+'</figcaption></figure>').join('')||'<span class="hint">No images uploaded</span>')+'</div>';
+  html+='<h3>Presentation</h3>';
+  html+='<div class="answer-block"><strong>Title</strong>'+(escapeHTML(g.presentation.pres_title||'')||'<em>—</em>')+'</div>';
+  html+='<div class="answer-block"><strong>Key Points</strong>'+(escapeHTML(g.presentation.pres_points||'').replace(/\n/g,'<br>')||'<em>—</em>')+'</div>';
+  html+='<div class="answer-block"><strong>Explanation</strong>'+(escapeHTML(g.presentation.pres_explain||'')||'<em>—</em>')+'</div>';
+  html+='<div style="display:flex;gap:8px;margin-top:18px;flex-wrap:wrap"><button class="btn btn-ghost small" onclick="downloadGroupPDF(\''+g.key+'\')">⬇ Download as HTML/PDF</button>'+(g.submitted?'<button class="btn btn-ghost small" onclick="unlockGroup(\''+g.key+'\')">🔓 Unlock</button>':'<button class="btn btn-ghost small" onclick="lockGroup(\''+g.key+'\')">🔒 Lock Submission</button>')+'<button class="btn btn-danger small" onclick="deleteGroup(\''+g.key+'\')">🗑 Delete Group</button></div>';
+  document.getElementById('modal-body').innerHTML=html;
+  document.getElementById('modal').classList.remove('hidden');
+}
+function closeModal(){document.getElementById('modal').classList.add('hidden');}
+function lockGroup(key){state=loadState();state.groups[key].submitted=true;state.groups[key].submittedAt=Date.now();saveState(state);openGroupDetail(key);renderTeacher();}
+function unlockGroup(key){state=loadState();state.groups[key].submitted=false;state.groups[key].submittedAt=null;saveState(state);openGroupDetail(key);renderTeacher();}
+function deleteGroup(key){if(!confirm('Delete this group permanently?'))return;state=loadState();delete state.groups[key];saveState(state);closeModal();renderTeacher();}
+
+function toggleActivity(){
+  state=loadState();
+  if(state.activity.running){state.activity.running=false;state.activity.startedAt=null;}
+  else{state.activity.running=true;state.activity.startedAt=Date.now();}
+  saveState(state);broadcast('activity',{running:state.activity.running});renderTeacher();
+}
+
+function exportCSV(){
+  state=loadState();
+  const rows=[['Group','Category','Section','Members','Progress%','Submitted','SubmittedAt','Title','KeyPoints','Explanation','Images']];
+  Object.values(state.groups).forEach(g=>{
+    rows.push([g.name,CATEGORIES[g.cat].name,g.section,Object.values(g.members).map(m=>m.name).join('; '),groupProgress(g),g.submitted?'Yes':'No',g.submittedAt?new Date(g.submittedAt).toISOString():'',g.presentation.pres_title||'',(g.presentation.pres_points||'').replace(/\n/g,' | '),g.presentation.pres_explain||'',g.images.length]);
+  });
+  const csv=rows.map(r=>r.map(c=>'"'+String(c).replace(/"/g,'""')+'"').join(',')).join('\n');
+  download('workshop-submissions.csv',csv,'text/csv');
+}
+function exportJSON(){state=loadState();download('workshop-data.json',JSON.stringify(state,null,2),'application/json');}
+function downloadGroupPDF(key){
+  state=loadState();const g=state.groups[key];const meta=CATEGORIES[g.cat];
+  const colorMap={orange:'#FF7A1A',purple:'#8B5CF6',blue:'#2D7FF9',green:'#22C55E'};
+  const html='<!doctype html><html><head><meta charset="utf-8"><title>'+escapeHTML(g.name)+' Submission</title><style>body{font-family:Arial,sans-serif;max-width:800px;margin:30px auto;padding:0 20px;color:#1E293B}h1{color:'+colorMap[meta.color]+'}h2{margin-top:24px;border-bottom:2px solid #E2E8F0;padding-bottom:6px}.ab{background:#F8FAFC;padding:10px 14px;border-radius:8px;margin-bottom:8px}.ab strong{display:block;color:#64748B;font-size:12px;text-transform:uppercase;margin-bottom:4px}img{max-width:100%;border-radius:8px;margin:8px 0}</style></head><body><h1>'+meta.icon+' '+meta.name+'</h1><p><strong>Group:</strong> '+escapeHTML(g.name)+' · <strong>Section:</strong> '+g.section+' · <strong>Members:</strong> '+(Object.values(g.members).map(m=>escapeHTML(m.name)).join(', ')||'—')+'</p><h2>Answers</h2>'+meta.fields.map(f=>'<div class="ab"><strong>'+f.label+'</strong>'+(escapeHTML(g.answers[f.id]||'').replace(/\n/g,'<br>')||'—')+'</div>').join('')+'<h2>Images</h2>'+(g.images.map(i=>'<div><img src="'+i.data+'"/><div><em>'+escapeHTML(i.caption||'')+'</em></div></div>').join('')||'<p>No images.</p>')+'<h2>Presentation</h2><div class="ab"><strong>Title</strong>'+escapeHTML(g.presentation.pres_title||'')+'</div><div class="ab"><strong>Key Points</strong>'+escapeHTML(g.presentation.pres_points||'').replace(/\n/g,'<br>')+'</div><div class="ab"><strong>Explanation</strong>'+escapeHTML(g.presentation.pres_explain||'')+'</div><p style="margin-top:30px;color:#94A3B8;font-size:12px">Exported '+new Date().toLocaleString()+' · Use your browser\'s Print → Save as PDF.</p><scr'+'ipt>setTimeout(()=>window.print(),500)</scr'+'ipt></body></html>';
+  const w=window.open('','_blank');w.document.write(html);w.document.close();
+}
+function download(filename,content,type){
+  const blob=new Blob([content],{type});const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');a.href=url;a.download=filename;a.click();
+  setTimeout(()=>URL.revokeObjectURL(url),100);toast('Downloaded ✓','success');
+}
+
+function seedDemo(){
+  if(!confirm('Seed demo data? Existing data will be kept.'))return;
+  state=loadState();
+  const demos=[
+    {group:'GROUP-A1',section:'Girls',cat:'A',members:['Sara','Layla','Nour'],
+      answers:{what:'Game mechanics are the rules and actions a player can do.',categories:'Movement, combat, puzzles, building, social.',ex_good:'Super Mario Bros — jumping always feels precise and fair.',ex_bad:'A buggy mobile game where double-jump fails randomly.',your_game:'A grappling-hook mechanic to swing across rooftops.'},
+      pres:{title:'⚙️ Mechanics — by GROUP-A1',points:'• Jump = responsive\n• Combat = fair\n• Movement = predictable',explain:'Great mechanics make players feel skillful, not lucky.'},submitted:true},
+    {group:'GROUP-B1',section:'Boys',cat:'B',members:['Omar','Ali'],
+      answers:{what:'A story is the narrative that makes players care.',elements:'Hero, conflict, world, twist.',ex_good:'The Last of Us — emotional bond between characters.',ex_bad:'A shooter with no clear motivation.',your_game:'A boy chasing his lost dog through a magical city.'},
+      pres:{title:'📖 Story — GROUP-B1',points:'• Hero with a goal\n• Real emotion\n• Clear stakes',explain:'Stories work when players care about WHO and WHY.'},submitted:false},
+    {group:'GROUP-C1',section:'Girls',cat:'C',members:['Maya','Hala'],
+      answers:{what:'Controls are how the player gives input.',rules:'1) Be predictable\n2) Be quick\n3) Match the platform.',ex_good:'Celeste — every button does ONE precise thing.',ex_bad:'A racing game with floaty steering.',your_game:'Mobile — tap to jump, swipe to dash.'},
+      pres:{title:'🎮 Controls — GROUP-C1',points:'• 1 input = 1 action\n• Instant feedback\n• Fits the platform',explain:'Good controls disappear — players just play.'},submitted:false},
+    {group:'GROUP-D1',section:'Boys',cat:'D',members:['Yusuf','Khaled','Sami'],
+      answers:{what:'The objective is what the player is trying to do.',rule:'Always tell the player WHAT and WHY in the first 30 seconds.',ex_good:'Among Us — find the imposter, do tasks. Crystal clear.',ex_bad:'An open-world game with no clear first goal.',your_game:'Save your village by collecting 5 ancient stones.'},
+      pres:{title:'🎯 Objectives — GROUP-D1',points:'• Clear in 30s\n• Big goal + small wins\n• Visible progress',explain:"Players quit when they don't know what to do."},submitted:true}
+  ];
+  demos.forEach(d=>{
+    const k=d.section+'__'+d.cat+'__'+d.group;
+    if(state.groups[k])return;
+    const members={};
+    d.members.forEach(n=>members['demo_'+Math.random().toString(36).slice(2,6)]={name:n,lastSeen:Date.now(),typing:null});
+    state.groups[k]={key:k,name:d.group,section:d.section,cat:d.cat,members,answers:d.answers,images:[],presentation:{pres_title:d.pres.title,pres_points:d.pres.points,pres_explain:d.pres.explain},submitted:d.submitted,submittedAt:d.submitted?Date.now()-3600000:null,createdAt:Date.now()};
+  });
+  saveState(state);renderTeacher();toast('Demo data seeded ✓','success');
+}
+function resetAll(){
+  if(!confirm('Reset ALL workshop data? This cannot be undone.'))return;
+  localStorage.removeItem(STORAGE_KEY);state=loadState();renderTeacher();toast('All data reset.','success');
+}
+
+function escapeHTML(s){if(s==null)return'';return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function toast(msg,type){const t=document.getElementById('toast');t.textContent=msg;t.className='toast show '+(type||'');clearTimeout(toast._t);toast._t=setTimeout(()=>t.classList.remove('show'),2200);}
+
+window.addEventListener('beforeunload',()=>{
+  if(me&&me.role==='student'){state=loadState();const k=groupKey();if(state.groups[k]&&state.groups[k].members[me.id]){delete state.groups[k].members[me.id];saveState(state);}}
+});
+
+setInterval(()=>{
+  state=loadState();
+  if(currentPage()==='page-workspace'&&me)refreshWorkspaceFromState();
+  if(currentPage()==='page-teacher')renderTeacher();
+},1500);
+
+console.log('🎮 Game Design Workshop loaded. Open multiple tabs with the same group code to see live sync!');
+</script>
+</body>
+</html>
